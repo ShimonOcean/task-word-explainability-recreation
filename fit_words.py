@@ -40,51 +40,9 @@ def create_clip_feature_mat(file_list, clip_model, preprocess_fxn):
 
     return X
 
-
-# def fit_words(train_df, test_df, device, word_list, save_dir, save_tag):
-#     clip_model, preprocess_fxn = clip.load("ViT-B/32", device=device)
-#     X_train = create_clip_feature_mat(train_df.file_path.values, clip_model, preprocess_fxn)
-
-#     classifier = LogisticRegression(random_state=0, C=1, max_iter=1000, verbose=1, fit_intercept=False)
-#     classifier.fit(X_train, train_df.label.values)
-
-#     tokened_words = clip.tokenize(word_list).to(device)
-#     with torch.no_grad():
-#         word_features = clip_model.encode_text(tokened_words)
-
-#     weights_model = LinearRegression(fit_intercept=False)
-#     weights_model.fit(word_features.cpu().T, classifier.coef_[0])
-#     word_df = pd.DataFrame({'word': words, 'weights': weights_model.coef_})
-#     word_df.sort_values('weights', inplace=True)
-#     word_df.set_index('word', inplace=True)
-#     word_df.to_csv(os.path.join(save_dir, f'word_weights-{save_tag}.csv'))
-
-#     X_test = create_clip_feature_mat(test_df.file_path.values, clip_model, preprocess_fxn)
-#     yhat = classifier.predict_proba(X_test)
-#     print('test acc: ', classifier.score(X_test, test_df.label))
-
-#     pred_coef = weights_model.predict(word_features.cpu().T)
-#     cos_sim = 1 - distance.cosine(pred_coef, classifier.coef_[0])
-#     print('cosine sim between weights', cos_sim)
 def fit_words(train_df, test_df, device, word_list, save_dir, save_tag):
     clip_model, preprocess_fxn = clip.load("ViT-B/32", device=device)
     X_train = create_clip_feature_mat(train_df.file_path.values, clip_model, preprocess_fxn)
-
-    # Scoring
-    # print('test acc: ', classifier.score(X_test, test_df['label']))
-    # # Ensure there are no NaN values in the label column
-    # if test_df['label'].isnull().any():
-    #     print("Warning: NaN values found in test_df['label']. Handling them...")
-    #     # Option 1: Drop rows with NaN values
-    #     test_df = test_df.dropna(subset=['label'])
-    #     # Option 2: Fill NaN values with a default value (e.g., 0 or a specific class)
-    #     # test_df['label'] = test_df['label'].fillna(0)
-
-    # # Convert the label column to integers
-    # test_df['label'] = test_df['label'].astype(int)
-
-    # # Proceed with scoring
-    # # print('test acc: ', classifier.score(X_test, test_df['label']))
 
     # # Truncate samples to match lengths
     min_length = min(len(X_train), len(train_df))
